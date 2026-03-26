@@ -1,0 +1,614 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>10. Capítulo 10: Conclusiones Generales &#8212; Análisis de Series de Tiempo: Bitcoin ARIMA</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/proof.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-examples.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../_static/sphinx-thebe.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'content/10_conclusiones';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="9. Ver notebook principal bitcoin_arima_analysis.ipynb" href="09_comparacion_global.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="intro.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Análisis de Series de Tiempo: Bitcoin ARIMA</p>
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Fundamentos</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="01_datos.html">1. Capítulo 1: Descarga y Exploración de Datos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_estacionariedad.html">2. Capítulo 2: Análisis de Estacionariedad</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Modelado ARIMA</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="03_seleccion_aic.html">3. Capítulo 3: Selección de Modelos ARIMA — Criterio AIC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_seleccion_bic_hqic.html">4. Capítulo 4: Selección ARIMA — Criterios BIC y HQIC</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Predicción</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="05_rolling_forecast.html">5. Ver notebook principal bitcoin_arima_analysis.ipynb</a></li>
+<li class="toctree-l1"><a class="reference internal" href="06_direct_forecast.html">6. Ver notebook principal bitcoin_arima_analysis.ipynb</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Evaluación</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="07_diagnostico_residuales.html">7. Ver notebook principal bitcoin_arima_analysis.ipynb</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08_metricas_error.html">8. Capítulo 8: Métricas de Error y Evaluación Predictiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="09_comparacion_global.html">9. Ver notebook principal bitcoin_arima_analysis.ipynb</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Conclusiones</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">10. Capítulo 10: Conclusiones Generales</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/content/10_conclusiones.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Capítulo 10: Conclusiones Generales</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sobre-la-serie-btc-usd">10.1. 10.1 Sobre la serie BTC-USD</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sobre-la-seleccion-del-modelo">10.2. 10.2 Sobre la selección del modelo</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sobre-los-metodos-de-prediccion">10.3. 10.3 Sobre los métodos de predicción</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sobre-los-residuales">10.4. 10.4 Sobre los residuales</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ranking-de-configuraciones-por-mape-rolling">10.5. 10.5 Ranking de configuraciones (por MAPE rolling)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limitaciones-y-extensiones">10.6. 10.6 Limitaciones y extensiones</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="capitulo-10-conclusiones-generales">
+<h1><span class="section-number">10. </span>Capítulo 10: Conclusiones Generales<a class="headerlink" href="#capitulo-10-conclusiones-generales" title="Permalink to this heading">#</a></h1>
+<section id="sobre-la-serie-btc-usd">
+<h2><span class="section-number">10.1. </span>10.1 Sobre la serie BTC-USD<a class="headerlink" href="#sobre-la-serie-btc-usd" title="Permalink to this heading">#</a></h2>
+<p>La serie histórica de Bitcoin (2014–presente) es un proceso <strong>integrado de orden 1 — I(1)</strong>, confirmado por la convergencia de los tests ADF y KPSS:</p>
+<ul class="simple">
+<li><p><strong>ADF en nivel:</strong> estadístico = −1.15, p = 0.69 → no rechaza raíz unitaria</p></li>
+<li><p><strong>KPSS en nivel:</strong> estadístico = 7.50 &gt;&gt; valor crítico al 1% (0.739) → rechaza estacionariedad</p></li>
+<li><p><strong>Primera diferencia:</strong> ambos tests confirman estacionariedad → <span class="math notranslate nohighlight">\(d = 1\)</span></p></li>
+</ul>
+<p>Los log-retornos exhiben <strong>clusters de volatilidad</strong> (efecto ARCH), estructura que ARIMA no captura. Un modelo ARIMA-GARCH sería más apropiado para modelar completamente la distribución condicional.</p>
+</section>
+<section id="sobre-la-seleccion-del-modelo">
+<h2><span class="section-number">10.2. </span>10.2 Sobre la selección del modelo<a class="headerlink" href="#sobre-la-seleccion-del-modelo" title="Permalink to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Criterio</p></th>
+<th class="head"><p>Modelo predominante</p></th>
+<th class="head"><p>Penalización por parámetro (<span class="math notranslate nohighlight">\(n \approx 3800\)</span>)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>AIC</p></td>
+<td><p>ARIMA(1,1,0) / ARIMA(2,1,1)</p></td>
+<td><p><span class="math notranslate nohighlight">\(2k = 2\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>BIC</p></td>
+<td><p>ARIMA(1,1,0)</p></td>
+<td><p><span class="math notranslate nohighlight">\(k\ln(3800) \approx 8.24k\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>HQIC</p></td>
+<td><p>ARIMA(1,1,0)</p></td>
+<td><p><span class="math notranslate nohighlight">\(2k\ln(\ln(3800)) \approx 4.17k\)</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Los tres criterios convergen al mismo modelo de orden bajo para la mayoría de horizontes, reflejando que la dinámica de BTC diferenciado tiene <strong>memoria de corto alcance</strong>.</p>
+</section>
+<section id="sobre-los-metodos-de-prediccion">
+<h2><span class="section-number">10.3. </span>10.3 Sobre los métodos de predicción<a class="headerlink" href="#sobre-los-metodos-de-prediccion" title="Permalink to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Dimensión</p></th>
+<th class="head"><p>Rolling</p></th>
+<th class="head"><p>Directo</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Mecanismo</p></td>
+<td><p>Re-entrena con cada nueva obs real</p></td>
+<td><p>Un único ajuste, proyecta <span class="math notranslate nohighlight">\(h\)</span> pasos</p></td>
+</tr>
+<tr class="row-odd"><td><p>MAPE promedio</p></td>
+<td><p>~2.1%</p></td>
+<td><p>~4.7%</p></td>
+</tr>
+<tr class="row-even"><td><p>R²</p></td>
+<td><p>0.23 – 0.33</p></td>
+<td><p>Negativo (mayoría)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Adecuado para operación</p></td>
+<td><p>✓ Sí</p></td>
+<td><p>✗ No</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="sobre-los-residuales">
+<h2><span class="section-number">10.4. </span>10.4 Sobre los residuales<a class="headerlink" href="#sobre-los-residuales" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Independencia (Ljung-Box):</strong> En la mayoría de los modelos se acepta H₀ — los residuales son ruido blanco. Cuando se rechaza, indica que el modelo no capturó toda la estructura temporal.</p></li>
+<li><p><strong>Normalidad (JB, SW):</strong> Típicamente rechazada — los residuales de BTC presentan <strong>leptocurtosis</strong> (colas pesadas). Esto invalida los intervalos de confianza basados en distribución normal, pero no afecta la validez de las predicciones puntuales.</p></li>
+</ul>
+</section>
+<section id="ranking-de-configuraciones-por-mape-rolling">
+<h2><span class="section-number">10.5. </span>10.5 Ranking de configuraciones (por MAPE rolling)<a class="headerlink" href="#ranking-de-configuraciones-por-mape-rolling" title="Permalink to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Posición</p></th>
+<th class="head"><p>Criterio</p></th>
+<th class="head"><p>Horizonte</p></th>
+<th class="head"><p>MAPE (%)</p></th>
+<th class="head"><p>R²</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1°</p></td>
+<td><p>BIC</p></td>
+<td><p>14d</p></td>
+<td><p>1.6681</p></td>
+<td><p>0.3026</p></td>
+</tr>
+<tr class="row-odd"><td><p>2°</p></td>
+<td><p>AIC/HQIC</p></td>
+<td><p>14d</p></td>
+<td><p>1.6778</p></td>
+<td><p>0.2917</p></td>
+</tr>
+<tr class="row-even"><td><p>3°</p></td>
+<td><p>AIC/HQIC</p></td>
+<td><p>21d</p></td>
+<td><p>2.1442</p></td>
+<td><p>0.2319</p></td>
+</tr>
+<tr class="row-odd"><td><p>4°</p></td>
+<td><p>AIC/HQIC</p></td>
+<td><p>7d</p></td>
+<td><p>2.1873</p></td>
+<td><p>−1.5101</p></td>
+</tr>
+<tr class="row-even"><td><p>5°</p></td>
+<td><p>AIC/HQIC</p></td>
+<td><p>28d</p></td>
+<td><p>2.2180</p></td>
+<td><p>0.3274</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="limitaciones-y-extensiones">
+<h2><span class="section-number">10.6. </span>10.6 Limitaciones y extensiones<a class="headerlink" href="#limitaciones-y-extensiones" title="Permalink to this heading">#</a></h2>
+<div class="warning admonition">
+<p class="admonition-title">Limitaciones del análisis ARIMA para BTC</p>
+<ol class="arabic simple">
+<li><p><strong>Heterocedasticidad condicional:</strong> ARIMA asume varianza constante. Los clusters de volatilidad de BTC requieren modelos GARCH para capturar la dinámica de la varianza condicional.</p></li>
+<li><p><strong>Evaluación con ventana única:</strong> Los resultados son sensibles al período específico de test. Una evaluación más robusta requeriría <strong>walk-forward validation</strong> con múltiples ventanas.</p></li>
+<li><p><strong>Linealidad:</strong> ARIMA es un modelo lineal. Las no-linealidades en BTC (asimetría de respuesta a shocks positivos/negativos) no son capturadas.</p></li>
+<li><p><strong>Hipótesis de mercado eficiente:</strong> El MAPE ~2% del rolling no implica que el modelo sea rentable en trading — los costos de transacción y el spread suelen superar ese margen.</p></li>
+</ol>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Extensiones posibles</p>
+<ul class="simple">
+<li><p><strong>ARIMA-GARCH:</strong> Modela simultáneamente la media y la varianza condicional</p></li>
+<li><p><strong>SARIMA:</strong> Si se detecta estacionalidad semanal en la serie diferenciada</p></li>
+<li><p><strong>VAR:</strong> Incorporar variables exógenas (volumen, dominancia BTC, tasas de interés)</p></li>
+<li><p><strong>LSTM / Transformer:</strong> Modelos de deep learning para capturar dependencias no lineales de largo plazo</p></li>
+</ul>
+</div>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./content"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="09_comparacion_global.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><span class="section-number">9. </span>Ver notebook principal bitcoin_arima_analysis.ipynb</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sobre-la-serie-btc-usd">10.1. 10.1 Sobre la serie BTC-USD</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sobre-la-seleccion-del-modelo">10.2. 10.2 Sobre la selección del modelo</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sobre-los-metodos-de-prediccion">10.3. 10.3 Sobre los métodos de predicción</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sobre-los-residuales">10.4. 10.4 Sobre los residuales</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ranking-de-configuraciones-por-mape-rolling">10.5. 10.5 Ranking de configuraciones (por MAPE rolling)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limitaciones-y-extensiones">10.6. 10.6 Limitaciones y extensiones</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Series de Tiempo — ARIMA BTC-USD
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,82 @@
+#######################################################################################
+# Configuración del Jupyter Book — Análisis ARIMA Bitcoin
+#######################################################################################
+
+title                : "Análisis de Series de Tiempo: Bitcoin ARIMA"
+author               : "Series de Tiempo — ARIMA BTC-USD"
+copyright            : "2025"
+logo                 : ""
+
+exclude_patterns     : [_build, Thumbs.db, .DS_Store, "**.ipynb_checkpoints"]
+only_build_toc_files : false
+
+#######################################################################################
+# Ejecución del notebook
+#######################################################################################
+execute:
+  execute_notebooks  : "off"       # No re-ejecutar al compilar (usar outputs ya guardados)
+  timeout            : 300
+  allow_errors       : false
+
+#######################################################################################
+# Opciones de parseo
+#######################################################################################
+parse:
+  myst_enable_extensions:
+    - colon_fence
+    - dollarmath
+    - amsmath
+    - html_image
+  myst_url_schemes   : [mailto, http, https]
+  myst_dmath_double_inline: true
+
+#######################################################################################
+# HTML output
+#######################################################################################
+html:
+  use_issues_button      : false
+  use_repository_button  : false
+  use_edit_page_button   : false
+  navbar_number_sections : true
+  home_page_in_navbar    : true
+  use_multitoc_numbering : true
+  extra_navbar           : ""
+  extra_footer           : |
+    <p>Análisis ARIMA — BTC-USD | Series de Tiempo</p>
+  google_analytics_id    : ""
+  comments:
+    hypothesis           : false
+
+#######################################################################################
+# LaTeX / PDF output
+#######################################################################################
+latex:
+  latex_engine           : pdflatex
+  use_jupyterbook_latex  : true
+  latex_documents:
+    targetname           : btc_arima_book.tex
+
+#######################################################################################
+# Repositorio (opcional)
+#######################################################################################
+repository:
+  url                    : ""
+  branch                 : main
+
+#######################################################################################
+# Sphinx extensions
+#######################################################################################
+sphinx:
+  extra_extensions:
+    - sphinx_proof
+    - sphinx_examples
+  config:
+    html_theme             : sphinx_book_theme
+    html_theme_options:
+      show_navbar_depth    : 2
+      use_sidenotes        : true
+      repository_url       : ""
+      use_repository_button: false
+    mathjax_path: https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+    numfig                 : true
+    math_number_all        : true

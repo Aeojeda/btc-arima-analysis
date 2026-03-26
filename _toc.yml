@@ -1,0 +1,33 @@
+format: jb-book
+root: content/intro
+
+parts:
+  - caption: "Fundamentos"
+    numbered: true
+    chapters:
+      - file: content/01_datos
+      - file: content/02_estacionariedad
+
+  - caption: "Modelado ARIMA"
+    numbered: true
+    chapters:
+      - file: content/03_seleccion_aic
+      - file: content/04_seleccion_bic_hqic
+
+  - caption: "Predicción"
+    numbered: true
+    chapters:
+      - file: content/05_rolling_forecast
+      - file: content/06_direct_forecast
+
+  - caption: "Evaluación"
+    numbered: true
+    chapters:
+      - file: content/07_diagnostico_residuales
+      - file: content/08_metricas_error
+      - file: content/09_comparacion_global
+
+  - caption: "Conclusiones"
+    numbered: true
+    chapters:
+      - file: content/10_conclusiones

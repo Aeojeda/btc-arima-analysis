@@ -14,13 +14,20 @@ parts:
       - file: content/03_seleccion_aic
       - file: content/04_seleccion_bic_hqic
 
-  - caption: "Análisis Completo"
+  - caption: "Prediccion"
     numbered: true
     chapters:
-      - file: bitcoin_arima_analysis
+      - file: content/05_rolling_forecast
+      - file: content/06_direct_forecast
 
-  - caption: "Evaluación y Conclusiones"
+  - caption: "Diagnostico y Evaluacion"
     numbered: true
     chapters:
+      - file: content/07_diagnostico_residuales
       - file: content/08_metricas_error
+      - file: content/09_comparacion_global
+
+  - caption: "Conclusiones"
+    numbered: true
+    chapters:
       - file: content/10_conclusiones

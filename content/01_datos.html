@@ -171,20 +171,14 @@ const thebe_selector_output = ".output, .cell_output"
 <li class="toctree-l1"><a class="reference internal" href="03_seleccion_aic.html">3. Capítulo 3: Selección de Modelos ARIMA — Criterio AIC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04_seleccion_bic_hqic.html">4. Capítulo 4: Selección ARIMA — Criterios BIC y HQIC</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Predicción</span></p>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Análisis Completo</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="05_rolling_forecast.html">5. Ver notebook principal bitcoin_arima_analysis.ipynb</a></li>
-<li class="toctree-l1"><a class="reference internal" href="06_direct_forecast.html">6. Ver notebook principal bitcoin_arima_analysis.ipynb</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bitcoin_arima_analysis.html">5. Análisis de Series de Tiempo: Futuros de Bitcoin (BTC-USD)</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Evaluación</span></p>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Evaluación y Conclusiones</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="07_diagnostico_residuales.html">7. Ver notebook principal bitcoin_arima_analysis.ipynb</a></li>
-<li class="toctree-l1"><a class="reference internal" href="08_metricas_error.html">8. Capítulo 8: Métricas de Error y Evaluación Predictiva</a></li>
-<li class="toctree-l1"><a class="reference internal" href="09_comparacion_global.html">9. Ver notebook principal bitcoin_arima_analysis.ipynb</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Conclusiones</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="10_conclusiones.html">10. Capítulo 10: Conclusiones Generales</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08_metricas_error.html">6. Capítulo 8: Métricas de Error y Evaluación Predictiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_conclusiones.html">7. Capítulo 10: Conclusiones Generales</a></li>
 </ul>
 
     </div>
@@ -358,7 +352,7 @@ document.write(`
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">yfinance</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">yf</span>
@@ -395,13 +389,23 @@ document.write(`
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Ticker        : BTC-USD
+Rango         : 2014-09-17 -&gt; 2026-04-03
+Observaciones : 4,217
+Precio min    : $178.10
+Precio max    : $124,752.53
+Precio actual : $66,931.10
+</pre></div>
+</div>
+</div>
 </div>
 </section>
 <section id="estadisticas-descriptivas">
 <h2><span class="section-number">1.2. </span>1.2 Estadísticas descriptivas<a class="headerlink" href="#estadisticas-descriptivas" title="Permalink to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">btc</span><span class="p">[</span><span class="s1">&#39;LogReturn&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">btc</span><span class="o">.</span><span class="n">Price</span> <span class="o">/</span> <span class="n">btc</span><span class="o">.</span><span class="n">Price</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">btc</span><span class="p">[</span><span class="s1">&#39;LogReturn&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">btc</span><span class="o">.</span><span class="n">Price</span> <span class="o">/</span> <span class="n">btc</span><span class="o">.</span><span class="n">Price</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
 
 <span class="n">desc</span> <span class="o">=</span> <span class="n">btc</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=== Estadisticas Descriptivas ===&#39;</span><span class="p">)</span>
@@ -414,6 +418,25 @@ document.write(`
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>=== Estadisticas Descriptivas ===
+             Price  LogReturn
+count    4217.0000  4216.0000
+mean    27936.8487     0.0012
+std     32166.5289     0.0353
+min       178.1030    -0.4647
+25%      3213.9399    -0.0127
+50%     11296.4004     0.0011
+75%     43960.9336     0.0158
+max    124752.5312     0.2251
+
+Curtosis  (Price)     : 0.4726
+Asimetria (Price)     : 1.2329
+Curtosis  (LogReturn) : 11.7379
+Asimetria (LogReturn) : -0.7080
+</pre></div>
+</div>
+</div>
 </div>
 </section>
 <section id="visualizacion-de-la-serie">
@@ -421,7 +444,7 @@ document.write(`
 <p>Se visualiza tanto el nivel como los log-retornos. La presencia de <strong>clusters de volatilidad</strong> en los log-retornos (períodos alternos de alta y baja variabilidad) es una característica estructural de los activos financieros conocida como <strong>efecto ARCH</strong>, que ARIMA no captura pero es importante documentar.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">btc</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">btc</span><span class="o">.</span><span class="n">Price</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#F7931A&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.2</span><span class="p">)</span>
 <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Precio de Cierre BTC-USD (nivel)&#39;</span><span class="p">)</span>
@@ -440,6 +463,9 @@ document.write(`
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/de1227c75f5ad0b50096a21102fa8c418197664fabe3346927747420a48f7b6c.png" src="../_images/de1227c75f5ad0b50096a21102fa8c418197664fabe3346927747420a48f7b6c.png" />
 </div>
 </div>
 <div class="tip admonition">

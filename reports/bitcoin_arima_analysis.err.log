@@ -1,0 +1,85 @@
+Traceback (most recent call last):
+  File "C:\Users\User\miniconda3\Lib\site-packages\jupyter_cache\executors\utils.py", line 58, in single_nb_execution
+    executenb(
+  File "C:\Users\User\miniconda3\Lib\site-packages\nbclient\client.py", line 1305, in execute
+    return NotebookClient(nb=nb, resources=resources, km=km, **kwargs).execute()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\miniconda3\Lib\site-packages\jupyter_core\utils\__init__.py", line 165, in wrapped
+    return loop.run_until_complete(inner)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\miniconda3\Lib\asyncio\base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\User\miniconda3\Lib\site-packages\nbclient\client.py", line 705, in async_execute
+    await self.async_execute_cell(
+  File "C:\Users\User\miniconda3\Lib\site-packages\nbclient\client.py", line 1058, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "C:\Users\User\miniconda3\Lib\site-packages\nbclient\client.py", line 914, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+def rolling_forecast(train_series, test_series, order, n_steps=1):
+    """
+    Realiza rolling forecast de 1-paso.
+    En cada iteración: re-ajusta el modelo con la historia actualizada
+    y predice el siguiente valor.
+    """
+    history      = list(train_series)
+    predictions  = []
+    conf_ints    = []
+
+    for i, actual in enumerate(test_series):
+        # Ajustar modelo con historia actual
+        model_fit = ARIMA(history, order=order).fit()
+        # Forecast 1 paso
+        fc   = model_fit.get_forecast(steps=n_steps)
+        pred = fc.predicted_mean.iloc[0]
+        ci   = fc.conf_int(alpha=0.05)
+        predictions.append(pred)
+        conf_ints.append((ci.iloc[0, 0], ci.iloc[0, 1]))
+        # Incorporar observación real
+        history.append(actual)
+
+    pred_series = pd.Series(predictions, index=test_series.index)
+    ci_df       = pd.DataFrame(conf_ints, index=test_series.index, columns=['lower_95', 'upper_95'])
+    return pred_series, ci_df
+
+
+print('Ejecutando predicciones rolling (AIC)... esto puede tardar varios minutos.')
+rolling_preds_aic = {}
+
+for h in HORIZONTES:
+    train = splits[h]['train']
+    test  = splits[h]['test']
+    order = modelos_aic[h]['order']
+    print(f'  → Horizonte {h}d │ ARIMA{order} │ {len(test)} iteraciones...')
+    preds, ci_df = rolling_forecast(train, test, order)
+    rolling_preds_aic[h] = {'preds': preds, 'ci': ci_df, 'test': test}
+    print(f'     ✓ Completado')
+
+print('\nRolling forecast AIC completado.')
+------------------
+
+----- stdout -----
+Ejecutando predicciones rolling (AIC)... esto puede tardar varios minutos.
+  → Horizonte 7d │ ARIMA(1, 1, 0) │ 7 iteraciones...
+------------------
+
+[31m---------------------------------------------------------------------------[39m
+[31mAttributeError[39m                            Traceback (most recent call last)
+[36mCell[39m[36m [39m[32mIn[10][39m[32m, line 36[39m
+[32m     34[39m order = modelos_aic[h][[33m'[39m[33morder[39m[33m'[39m]
+[32m     35[39m [38;5;28mprint[39m([33mf[39m[33m'[39m[33m  → Horizonte [39m[38;5;132;01m{[39;00mh[38;5;132;01m}[39;00m[33md │ ARIMA[39m[38;5;132;01m{[39;00morder[38;5;132;01m}[39;00m[33m │ [39m[38;5;132;01m{[39;00m[38;5;28mlen[39m(test)[38;5;132;01m}[39;00m[33m iteraciones...[39m[33m'[39m)
+[32m---> [39m[32m36[39m preds, ci_df = [43mrolling_forecast[49m[43m([49m[43mtrain[49m[43m,[49m[43m [49m[43mtest[49m[43m,[49m[43m [49m[43morder[49m[43m)[49m
+[32m     37[39m rolling_preds_aic[h] = {[33m'[39m[33mpreds[39m[33m'[39m: preds, [33m'[39m[33mci[39m[33m'[39m: ci_df, [33m'[39m[33mtest[39m[33m'[39m: test}
+[32m     38[39m [38;5;28mprint[39m([33mf[39m[33m'[39m[33m     ✓ Completado[39m[33m'[39m)
+
+[36mCell[39m[36m [39m[32mIn[10][39m[32m, line 16[39m, in [36mrolling_forecast[39m[34m(train_series, test_series, order, n_steps)[39m
+[32m     14[39m [38;5;66;03m# Forecast 1 paso[39;00m
+[32m     15[39m fc   = model_fit.get_forecast(steps=n_steps)
+[32m---> [39m[32m16[39m pred = [43mfc[49m[43m.[49m[43mpredicted_mean[49m[43m.[49m[43miloc[49m[[32m0[39m]
+[32m     17[39m ci   = fc.conf_int(alpha=[32m0.05[39m)
+[32m     18[39m predictions.append(pred)
+
+[31mAttributeError[39m: 'numpy.ndarray' object has no attribute 'iloc'
+

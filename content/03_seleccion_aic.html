@@ -173,20 +173,14 @@ const thebe_selector_output = ".output, .cell_output"
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">3. Capítulo 3: Selección de Modelos ARIMA — Criterio AIC</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04_seleccion_bic_hqic.html">4. Capítulo 4: Selección ARIMA — Criterios BIC y HQIC</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Predicción</span></p>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Análisis Completo</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="05_rolling_forecast.html">5. Ver notebook principal bitcoin_arima_analysis.ipynb</a></li>
-<li class="toctree-l1"><a class="reference internal" href="06_direct_forecast.html">6. Ver notebook principal bitcoin_arima_analysis.ipynb</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bitcoin_arima_analysis.html">5. Análisis de Series de Tiempo: Futuros de Bitcoin (BTC-USD)</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Evaluación</span></p>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Evaluación y Conclusiones</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="07_diagnostico_residuales.html">7. Ver notebook principal bitcoin_arima_analysis.ipynb</a></li>
-<li class="toctree-l1"><a class="reference internal" href="08_metricas_error.html">8. Capítulo 8: Métricas de Error y Evaluación Predictiva</a></li>
-<li class="toctree-l1"><a class="reference internal" href="09_comparacion_global.html">9. Ver notebook principal bitcoin_arima_analysis.ipynb</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Conclusiones</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="10_conclusiones.html">10. Capítulo 10: Conclusiones Generales</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08_metricas_error.html">6. Capítulo 8: Métricas de Error y Evaluación Predictiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_conclusiones.html">7. Capítulo 10: Conclusiones Generales</a></li>
 </ul>
 
     </div>
@@ -370,7 +364,7 @@ document.write(`
 </ul>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -411,10 +405,22 @@ document.write(`
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Total observaciones N = 4217
+
+---------------------------------------------------------------------------
+  Horizonte  7d | N_train=4210 (2014-09-17 -&gt; 2026-03-27) | N_test=7 (2026-03-28 -&gt; 2026-04-03)
+  Horizonte 14d | N_train=4203 (2014-09-17 -&gt; 2026-03-20) | N_test=14 (2026-03-21 -&gt; 2026-04-03)
+  Horizonte 21d | N_train=4196 (2014-09-17 -&gt; 2026-03-13) | N_test=21 (2026-03-14 -&gt; 2026-04-03)
+  Horizonte 28d | N_train=4189 (2014-09-17 -&gt; 2026-03-06) | N_test=28 (2026-03-07 -&gt; 2026-04-03)
+---------------------------------------------------------------------------
+</pre></div>
+</div>
+</div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">seleccionar_arima</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">criterion</span><span class="o">=</span><span class="s1">&#39;aic&#39;</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_p</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">max_q</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">seleccionar_arima</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">criterion</span><span class="o">=</span><span class="s1">&#39;aic&#39;</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_p</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">max_q</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">pm</span><span class="o">.</span><span class="n">auto_arima</span><span class="p">(</span>
         <span class="n">train</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="n">d</span><span class="p">,</span>
         <span class="n">start_p</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_p</span><span class="o">=</span><span class="n">max_p</span><span class="p">,</span>
@@ -440,6 +446,17 @@ document.write(`
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">h</span><span class="si">:</span><span class="s2">&gt;6</span><span class="si">}</span><span class="s2">d     </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">order</span><span class="p">)</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2">    </span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">aic</span><span class="p">()</span><span class="si">:</span><span class="s2">&gt;12.2f</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">bic</span><span class="p">()</span><span class="si">:</span><span class="s2">&gt;12.2f</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="n">hqic</span><span class="si">:</span><span class="s2">&gt;10.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">sep</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  Horizonte   Orden (p,d,q)        AIC          BIC         HQIC
+-----------------------------------------------------------------
+       7d        (1, 1, 0)        71189.53      71202.22    71194.02
+      14d        (1, 1, 0)        71057.53      71070.22    71062.02
+      21d        (1, 1, 0)        70932.44      70945.12    70936.93
+      28d        (1, 1, 0)        70812.12      70824.80    70816.61
+-----------------------------------------------------------------
 </pre></div>
 </div>
 </div>
@@ -484,9 +501,37 @@ document.write(`
 <p>Este resultado es consistente con la hipótesis de mercado eficiente: la dinámica de BTC diferenciado exhibe <strong>memoria de corto alcance</strong> (solo 1 rezago).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Resumen del modelo para horizonte 28d</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Resumen del modelo para horizonte 28d</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=== Resumen ARIMA — Horizonte 28 dias (AIC) ===&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">modelos_aic</span><span class="p">[</span><span class="mi">28</span><span class="p">][</span><span class="s1">&#39;model&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>=== Resumen ARIMA — Horizonte 28 dias (AIC) ===
+                               SARIMAX Results                                
+==============================================================================
+Dep. Variable:                      y   No. Observations:                 4189
+Model:               SARIMAX(1, 1, 0)   Log Likelihood              -35404.062
+Date:                Sat, 04 Apr 2026   AIC                          70812.125
+Time:                        19:14:16   BIC                          70824.805
+Sample:                    09-17-2014   HQIC                         70816.609
+                         - 03-06-2026                                         
+Covariance Type:                  opg                                         
+==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+ar.L1         -0.0484      0.008     -6.388      0.000      -0.063      -0.034
+sigma2      1.289e+06   1.09e+04    118.763      0.000    1.27e+06    1.31e+06
+===================================================================================
+Ljung-Box (L1) (Q):                   0.00   Jarque-Bera (JB):             23055.86
+Prob(Q):                              1.00   Prob(JB):                         0.00
+Heteroskedasticity (H):              33.30   Skew:                            -0.07
+Prob(H) (two-sided):                  0.00   Kurtosis:                        14.49
+===================================================================================
+
+Warnings:
+[1] Covariance matrix calculated using the outer product of gradients (complex-step).
 </pre></div>
 </div>
 </div>

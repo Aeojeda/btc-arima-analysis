@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>Ver notebook principal bitcoin_arima_analysis.ipynb &#8212; Análisis de Series de Tiempo: Bitcoin ARIMA</title>
+    <title>Capítulo 9: Comparación Global — Rolling vs. Directo &#8212; Análisis de Series de Tiempo: Bitcoin ARIMA</title>
   
   
   
@@ -304,7 +304,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
 </div></div>
       
     </div>
@@ -315,11 +317,21 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Ver notebook principal bitcoin_arima_analysis.ipynb</h1>
+    <h1>Capítulo 9: Comparación Global — Rolling vs. Directo</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tabla-comparativa-global">9.1 Tabla comparativa global</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#heatmap-mape-rolling-vs-directo">9.2 Heatmap MAPE — Rolling vs Directo</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#serie-real-vs-predicha-todos-los-criterios-horizonte-14d">9.3 Serie real vs. predicha — Todos los criterios (Horizonte 14d)</a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -329,9 +341,448 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="ver-notebook-principal-bitcoin-arima-analysis-ipynb">
-<h1>Ver notebook principal bitcoin_arima_analysis.ipynb<a class="headerlink" href="#ver-notebook-principal-bitcoin-arima-analysis-ipynb" title="Permalink to this heading">#</a></h1>
-<p>Este capítulo corresponde a la sección del notebook principal. Los resultados y código están en <code class="docutils literal notranslate"><span class="pre">bitcoin_arima_analysis.ipynb</span></code>.</p>
+  <section class="tex2jax_ignore mathjax_ignore" id="capitulo-9-comparacion-global-rolling-vs-directo">
+<h1>Capítulo 9: Comparación Global — Rolling vs. Directo<a class="headerlink" href="#capitulo-9-comparacion-global-rolling-vs-directo" title="Permalink to this heading">#</a></h1>
+<p>Este capítulo consolida la comparación visual y numérica entre los métodos <strong>rolling</strong> y <strong>directo</strong> para todos los horizontes y criterios de selección (AIC, BIC, HQIC).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yfinance</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">yf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pmdarima</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">statsmodels.tsa.arima.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">ARIMA</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">mean_absolute_error</span><span class="p">,</span> <span class="n">mean_squared_error</span><span class="p">,</span> <span class="n">r2_score</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;figure.facecolor&#39;</span><span class="p">:</span><span class="s1">&#39;white&#39;</span><span class="p">,</span><span class="s1">&#39;axes.facecolor&#39;</span><span class="p">:</span><span class="s1">&#39;#F8F9FA&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;axes.grid&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span><span class="s1">&#39;grid.alpha&#39;</span><span class="p">:</span><span class="mf">0.4</span><span class="p">,</span><span class="s1">&#39;font.size&#39;</span><span class="p">:</span><span class="mi">11</span><span class="p">})</span>
+
+<span class="n">raw</span> <span class="o">=</span> <span class="n">yf</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s1">&#39;BTC-USD&#39;</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="s1">&#39;2014-09-17&#39;</span><span class="p">,</span>
+                  <span class="n">end</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">),</span> <span class="n">progress</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">btc</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[[</span><span class="s1">&#39;Close&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">btc</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Price&#39;</span><span class="p">]</span>
+<span class="n">btc</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">btc</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span>
+<span class="n">btc</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">HORIZONTES</span>  <span class="o">=</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">28</span><span class="p">]</span>
+<span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">btc</span><span class="p">)</span>
+<span class="n">splits</span> <span class="o">=</span> <span class="p">{</span><span class="n">h</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="n">btc</span><span class="o">.</span><span class="n">Price</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">N</span><span class="o">-</span><span class="n">h</span><span class="p">],</span>
+              <span class="s1">&#39;test&#39;</span><span class="p">:</span>  <span class="n">btc</span><span class="o">.</span><span class="n">Price</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">N</span><span class="o">-</span><span class="n">h</span><span class="p">:]}</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">HORIZONTES</span><span class="p">}</span>
+
+<span class="c1"># Ordenes por criterio (precomputados)</span>
+<span class="n">ORDERS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;AIC&#39;</span><span class="p">:</span>  <span class="p">{</span><span class="mi">7</span><span class="p">:(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="mi">14</span><span class="p">:(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="mi">21</span><span class="p">:(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="mi">28</span><span class="p">:(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)},</span>
+    <span class="s1">&#39;BIC&#39;</span><span class="p">:</span>  <span class="p">{</span><span class="mi">7</span><span class="p">:(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="mi">14</span><span class="p">:(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="mi">21</span><span class="p">:(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="mi">28</span><span class="p">:(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)},</span>
+    <span class="s1">&#39;HQIC&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">7</span><span class="p">:(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="mi">14</span><span class="p">:(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="mi">21</span><span class="p">:(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="mi">28</span><span class="p">:(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)},</span>
+<span class="p">}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">rolling_forecast</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">order</span><span class="p">):</span>
+    <span class="n">history</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
+    <span class="n">preds</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">actual</span> <span class="ow">in</span> <span class="n">test</span><span class="p">:</span>
+        <span class="n">fit</span> <span class="o">=</span> <span class="n">ARIMA</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+        <span class="n">fc</span>  <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">get_forecast</span><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">pm_</span> <span class="o">=</span> <span class="n">fc</span><span class="o">.</span><span class="n">predicted_mean</span>
+        <span class="n">preds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pm_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pm_</span><span class="p">,</span><span class="s1">&#39;__len__&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">pm_</span><span class="p">))</span>
+        <span class="n">history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">actual</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">preds</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">test</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">direct_forecast</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">order</span><span class="p">):</span>
+    <span class="n">fit</span>   <span class="o">=</span> <span class="n">ARIMA</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+    <span class="n">fc</span>    <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">get_forecast</span><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="p">))</span>
+    <span class="n">preds</span> <span class="o">=</span> <span class="n">fc</span><span class="o">.</span><span class="n">predicted_mean</span>
+    <span class="n">preds</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">index</span>
+    <span class="k">return</span> <span class="n">preds</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">metricas</span><span class="p">(</span><span class="n">yr</span><span class="p">,</span> <span class="n">yp</span><span class="p">):</span>
+    <span class="n">yr</span><span class="p">,</span> <span class="n">yp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">yr</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">yp</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;MAPE&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">yr</span><span class="o">-</span><span class="n">yp</span><span class="p">)</span><span class="o">/</span><span class="n">yr</span><span class="p">))</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span>
+            <span class="s1">&#39;MAE&#39;</span><span class="p">:</span>  <span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">yr</span><span class="p">,</span><span class="n">yp</span><span class="p">),</span>
+            <span class="s1">&#39;RMSE&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">yr</span><span class="p">,</span><span class="n">yp</span><span class="p">)),</span>
+            <span class="s1">&#39;R2&#39;</span><span class="p">:</span>   <span class="n">r2_score</span><span class="p">(</span><span class="n">yr</span><span class="p">,</span><span class="n">yp</span><span class="p">)}</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Ejecutando todos los forecasts para comparacion global...&#39;</span><span class="p">)</span>
+<span class="n">resultados</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">crit</span><span class="p">,</span> <span class="n">orders</span> <span class="ow">in</span> <span class="n">ORDERS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">resultados</span><span class="p">[</span><span class="n">crit</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">HORIZONTES</span><span class="p">:</span>
+        <span class="n">train</span> <span class="o">=</span> <span class="n">splits</span><span class="p">[</span><span class="n">h</span><span class="p">][</span><span class="s1">&#39;train&#39;</span><span class="p">]</span>
+        <span class="n">test</span>  <span class="o">=</span> <span class="n">splits</span><span class="p">[</span><span class="n">h</span><span class="p">][</span><span class="s1">&#39;test&#39;</span><span class="p">]</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="n">orders</span><span class="p">[</span><span class="n">h</span><span class="p">]</span>
+        <span class="n">pr</span> <span class="o">=</span> <span class="n">rolling_forecast</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span>
+        <span class="n">pd_</span> <span class="o">=</span> <span class="n">direct_forecast</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span>
+        <span class="n">resultados</span><span class="p">[</span><span class="n">crit</span><span class="p">][</span><span class="n">h</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;rolling&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;preds&#39;</span><span class="p">:</span> <span class="n">pr</span><span class="p">,</span>  <span class="s1">&#39;m&#39;</span><span class="p">:</span> <span class="n">metricas</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">pr</span><span class="o">.</span><span class="n">values</span><span class="p">)},</span>
+            <span class="s1">&#39;directo&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;preds&#39;</span><span class="p">:</span> <span class="n">pd_</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">:</span> <span class="n">metricas</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">pd_</span><span class="o">.</span><span class="n">values</span><span class="p">)},</span>
+            <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="n">test</span>
+        <span class="p">}</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  </span><span class="si">{</span><span class="n">crit</span><span class="si">}</span><span class="s1"> H=</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s1">d | Roll MAPE=</span><span class="si">{</span><span class="n">resultados</span><span class="p">[</span><span class="n">crit</span><span class="p">][</span><span class="n">h</span><span class="p">][</span><span class="s2">&quot;rolling&quot;</span><span class="p">][</span><span class="s2">&quot;m&quot;</span><span class="p">][</span><span class="s2">&quot;MAPE&quot;</span><span class="p">]</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">% | &#39;</span>
+              <span class="sa">f</span><span class="s1">&#39;Dir MAPE=</span><span class="si">{</span><span class="n">resultados</span><span class="p">[</span><span class="n">crit</span><span class="p">][</span><span class="n">h</span><span class="p">][</span><span class="s2">&quot;directo&quot;</span><span class="p">][</span><span class="s2">&quot;m&quot;</span><span class="p">][</span><span class="s2">&quot;MAPE&quot;</span><span class="p">]</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">%&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Listo.&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Ejecutando todos los forecasts para comparacion global...
+  AIC H=7d | Roll MAPE=0.867% | Dir MAPE=1.102%
+  AIC H=14d | Roll MAPE=1.662% | Dir MAPE=3.820%
+  AIC H=21d | Roll MAPE=1.739% | Dir MAPE=3.570%
+  AIC H=28d | Roll MAPE=1.695% | Dir MAPE=2.970%
+  BIC H=7d | Roll MAPE=0.867% | Dir MAPE=1.102%
+  BIC H=14d | Roll MAPE=1.662% | Dir MAPE=3.820%
+  BIC H=21d | Roll MAPE=1.739% | Dir MAPE=3.567%
+  BIC H=28d | Roll MAPE=1.695% | Dir MAPE=2.970%
+  HQIC H=7d | Roll MAPE=0.867% | Dir MAPE=1.102%
+  HQIC H=14d | Roll MAPE=1.662% | Dir MAPE=3.820%
+  HQIC H=21d | Roll MAPE=1.739% | Dir MAPE=3.567%
+  HQIC H=28d | Roll MAPE=1.695% | Dir MAPE=2.970%
+Listo.
+</pre></div>
+</div>
+</div>
+</div>
+<section id="tabla-comparativa-global">
+<h2>9.1 Tabla comparativa global<a class="headerlink" href="#tabla-comparativa-global" title="Permalink to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">crit</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;AIC&#39;</span><span class="p">,</span><span class="s1">&#39;BIC&#39;</span><span class="p">,</span><span class="s1">&#39;HQIC&#39;</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">HORIZONTES</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">met</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;rolling&#39;</span><span class="p">,</span><span class="s1">&#39;directo&#39;</span><span class="p">]:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">resultados</span><span class="p">[</span><span class="n">crit</span><span class="p">][</span><span class="n">h</span><span class="p">][</span><span class="n">met</span><span class="p">][</span><span class="s1">&#39;m&#39;</span><span class="p">]</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;Criterio&#39;</span><span class="p">:</span><span class="n">crit</span><span class="p">,</span><span class="s1">&#39;Horizonte&#39;</span><span class="p">:</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s1">d&#39;</span><span class="p">,</span><span class="s1">&#39;Metodo&#39;</span><span class="p">:</span><span class="n">met</span><span class="o">.</span><span class="n">capitalize</span><span class="p">(),</span>
+                         <span class="s1">&#39;MAPE (%)&#39;</span><span class="p">:</span><span class="nb">round</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;MAPE&#39;</span><span class="p">],</span><span class="mi">4</span><span class="p">),</span><span class="s1">&#39;MAE ($)&#39;</span><span class="p">:</span><span class="nb">round</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;MAE&#39;</span><span class="p">],</span><span class="mi">2</span><span class="p">),</span>
+                         <span class="s1">&#39;RMSE ($)&#39;</span><span class="p">:</span><span class="nb">round</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;RMSE&#39;</span><span class="p">],</span><span class="mi">2</span><span class="p">),</span><span class="s1">&#39;R2&#39;</span><span class="p">:</span><span class="nb">round</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="s1">&#39;R2&#39;</span><span class="p">],</span><span class="mi">4</span><span class="p">)})</span>
+<span class="n">df_res</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=== Tabla Comparativa Global ===&#39;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">df_res</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s1">&#39;Criterio&#39;</span><span class="p">,</span><span class="s1">&#39;Horizonte&#39;</span><span class="p">,</span><span class="s1">&#39;Metodo&#39;</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>=== Tabla Comparativa Global ===
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th></th>
+      <th>MAPE (%)</th>
+      <th>MAE ($)</th>
+      <th>RMSE ($)</th>
+      <th>R2</th>
+    </tr>
+    <tr>
+      <th>Criterio</th>
+      <th>Horizonte</th>
+      <th>Metodo</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="8" valign="top">AIC</th>
+      <th rowspan="2" valign="top">7d</th>
+      <th>Rolling</th>
+      <td>0.8673</td>
+      <td>583.57</td>
+      <td>809.88</td>
+      <td>-0.0554</td>
+    </tr>
+    <tr>
+      <th>Directo</th>
+      <td>1.1023</td>
+      <td>745.21</td>
+      <td>971.97</td>
+      <td>-0.5201</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">14d</th>
+      <th>Rolling</th>
+      <td>1.6620</td>
+      <td>1137.79</td>
+      <td>1494.89</td>
+      <td>0.2313</td>
+    </tr>
+    <tr>
+      <th>Directo</th>
+      <td>3.8201</td>
+      <td>2565.97</td>
+      <td>2933.14</td>
+      <td>-1.9594</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">21d</th>
+      <th>Rolling</th>
+      <td>1.7391</td>
+      <td>1214.56</td>
+      <td>1529.01</td>
+      <td>0.6336</td>
+    </tr>
+    <tr>
+      <th>Directo</th>
+      <td>3.5695</td>
+      <td>2440.20</td>
+      <td>2948.99</td>
+      <td>-0.3629</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">28d</th>
+      <th>Rolling</th>
+      <td>1.6949</td>
+      <td>1178.27</td>
+      <td>1470.93</td>
+      <td>0.6110</td>
+    </tr>
+    <tr>
+      <th>Directo</th>
+      <td>2.9704</td>
+      <td>2093.74</td>
+      <td>2589.30</td>
+      <td>-0.2053</td>
+    </tr>
+    <tr>
+      <th rowspan="8" valign="top">BIC</th>
+      <th rowspan="2" valign="top">7d</th>
+      <th>Rolling</th>
+      <td>0.8673</td>
+      <td>583.57</td>
+      <td>809.88</td>
+      <td>-0.0554</td>
+    </tr>
+    <tr>
+      <th>Directo</th>
+      <td>1.1023</td>
+      <td>745.21</td>
+      <td>971.97</td>
+      <td>-0.5201</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">14d</th>
+      <th>Rolling</th>
+      <td>1.6620</td>
+      <td>1137.79</td>
+      <td>1494.89</td>
+      <td>0.2313</td>
+    </tr>
+    <tr>
+      <th>Directo</th>
+      <td>3.8201</td>
+      <td>2565.97</td>
+      <td>2933.14</td>
+      <td>-1.9594</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">21d</th>
+      <th>Rolling</th>
+      <td>1.7387</td>
+      <td>1214.26</td>
+      <td>1527.80</td>
+      <td>0.6342</td>
+    </tr>
+    <tr>
+      <th>Directo</th>
+      <td>3.5673</td>
+      <td>2438.72</td>
+      <td>2947.32</td>
+      <td>-0.3613</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">28d</th>
+      <th>Rolling</th>
+      <td>1.6949</td>
+      <td>1178.27</td>
+      <td>1470.93</td>
+      <td>0.6110</td>
+    </tr>
+    <tr>
+      <th>Directo</th>
+      <td>2.9704</td>
+      <td>2093.74</td>
+      <td>2589.30</td>
+      <td>-0.2053</td>
+    </tr>
+    <tr>
+      <th rowspan="8" valign="top">HQIC</th>
+      <th rowspan="2" valign="top">7d</th>
+      <th>Rolling</th>
+      <td>0.8673</td>
+      <td>583.57</td>
+      <td>809.88</td>
+      <td>-0.0554</td>
+    </tr>
+    <tr>
+      <th>Directo</th>
+      <td>1.1023</td>
+      <td>745.21</td>
+      <td>971.97</td>
+      <td>-0.5201</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">14d</th>
+      <th>Rolling</th>
+      <td>1.6620</td>
+      <td>1137.79</td>
+      <td>1494.89</td>
+      <td>0.2313</td>
+    </tr>
+    <tr>
+      <th>Directo</th>
+      <td>3.8201</td>
+      <td>2565.97</td>
+      <td>2933.14</td>
+      <td>-1.9594</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">21d</th>
+      <th>Rolling</th>
+      <td>1.7387</td>
+      <td>1214.26</td>
+      <td>1527.80</td>
+      <td>0.6342</td>
+    </tr>
+    <tr>
+      <th>Directo</th>
+      <td>3.5673</td>
+      <td>2438.72</td>
+      <td>2947.32</td>
+      <td>-0.3613</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">28d</th>
+      <th>Rolling</th>
+      <td>1.6949</td>
+      <td>1178.27</td>
+      <td>1470.93</td>
+      <td>0.6110</td>
+    </tr>
+    <tr>
+      <th>Directo</th>
+      <td>2.9704</td>
+      <td>2093.74</td>
+      <td>2589.30</td>
+      <td>-0.2053</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="heatmap-mape-rolling-vs-directo">
+<h2>9.2 Heatmap MAPE — Rolling vs Directo<a class="headerlink" href="#heatmap-mape-rolling-vs-directo" title="Permalink to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">criterios</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;AIC&#39;</span><span class="p">,</span><span class="s1">&#39;BIC&#39;</span><span class="p">,</span><span class="s1">&#39;HQIC&#39;</span><span class="p">]</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">met</span><span class="p">,</span> <span class="n">title</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;rolling&#39;</span><span class="p">,</span><span class="s1">&#39;directo&#39;</span><span class="p">],</span>
+                          <span class="p">[</span><span class="s1">&#39;MAPE (%) — Rolling&#39;</span><span class="p">,</span><span class="s1">&#39;MAPE (%) — Directo&#39;</span><span class="p">]):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[[</span><span class="n">resultados</span><span class="p">[</span><span class="n">c</span><span class="p">][</span><span class="n">h</span><span class="p">][</span><span class="n">met</span><span class="p">][</span><span class="s1">&#39;m&#39;</span><span class="p">][</span><span class="s1">&#39;MAPE&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">HORIZONTES</span><span class="p">]</span>
+             <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">criterios</span><span class="p">]</span>
+    <span class="n">df_h</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">criterios</span><span class="p">,</span>
+                        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s1">d&#39;</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">HORIZONTES</span><span class="p">])</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">df_h</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;.4f&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;YlOrRd&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+                <span class="n">linewidths</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">cbar_kws</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span><span class="s1">&#39;MAPE (%)&#39;</span><span class="p">})</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Horizonte&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Criterio&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s1">&#39;Comparacion MAPE (%) por Criterio, Horizonte y Metodo&#39;</span><span class="p">,</span>
+             <span class="n">fontsize</span><span class="o">=</span><span class="mi">13</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">&#39;bold&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;fig_heatmap_comparacion.png&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/41c67d82ac74b55818dbee7ec8f9c0ad7539082268656f6bc62655c9a2facdd7.png" src="../_images/41c67d82ac74b55818dbee7ec8f9c0ad7539082268656f6bc62655c9a2facdd7.png" />
+</div>
+</div>
+</section>
+<section id="serie-real-vs-predicha-todos-los-criterios-horizonte-14d">
+<h2>9.3 Serie real vs. predicha — Todos los criterios (Horizonte 14d)<a class="headerlink" href="#serie-real-vs-predicha-todos-los-criterios-horizonte-14d" title="Permalink to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Comparacion visual para horizonte 14d (mejor desempeno)</span>
+<span class="n">h</span> <span class="o">=</span> <span class="mi">14</span>
+<span class="n">test</span> <span class="o">=</span> <span class="n">splits</span><span class="p">[</span><span class="n">h</span><span class="p">][</span><span class="s1">&#39;test&#39;</span><span class="p">]</span>
+<span class="n">ctx</span>  <span class="o">=</span> <span class="n">splits</span><span class="p">[</span><span class="n">h</span><span class="p">][</span><span class="s1">&#39;train&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">60</span><span class="p">:]</span>
+<span class="n">colors_c</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;AIC&#39;</span><span class="p">:</span><span class="s1">&#39;#1E88E5&#39;</span><span class="p">,</span><span class="s1">&#39;BIC&#39;</span><span class="p">:</span><span class="s1">&#39;#43A047&#39;</span><span class="p">,</span><span class="s1">&#39;HQIC&#39;</span><span class="p">:</span><span class="s1">&#39;#FB8C00&#39;</span><span class="p">}</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">met</span><span class="p">,</span> <span class="n">title</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;rolling&#39;</span><span class="p">,</span><span class="s1">&#39;directo&#39;</span><span class="p">],</span>
+                          <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;Rolling — </span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s1"> dias&#39;</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;Directo — </span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s1"> dias&#39;</span><span class="p">]):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Historico&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">test</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span>
+            <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">ms</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Real $y_t$&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">crit</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;AIC&#39;</span><span class="p">,</span><span class="s1">&#39;BIC&#39;</span><span class="p">,</span><span class="s1">&#39;HQIC&#39;</span><span class="p">]:</span>
+        <span class="n">preds</span> <span class="o">=</span> <span class="n">resultados</span><span class="p">[</span><span class="n">crit</span><span class="p">][</span><span class="n">h</span><span class="p">][</span><span class="n">met</span><span class="p">][</span><span class="s1">&#39;preds&#39;</span><span class="p">]</span>
+        <span class="n">m</span>     <span class="o">=</span> <span class="n">resultados</span><span class="p">[</span><span class="n">crit</span><span class="p">][</span><span class="n">h</span><span class="p">][</span><span class="n">met</span><span class="p">][</span><span class="s1">&#39;m&#39;</span><span class="p">]</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">preds</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">preds</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">colors_c</span><span class="p">[</span><span class="n">crit</span><span class="p">],</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">crit</span><span class="si">}</span><span class="s1"> (MAPE=</span><span class="si">{</span><span class="n">m</span><span class="p">[</span><span class="s2">&quot;MAPE&quot;</span><span class="p">]</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">%)&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Precio BTC-USD (USD)&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">mdates</span><span class="o">.</span><span class="n">DateFormatter</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1">-%b-%Y&#39;</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.dates</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mdates</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s1">&#39;Comparacion AIC vs BIC vs HQIC — Horizonte 14 dias&#39;</span><span class="p">,</span>
+             <span class="n">fontsize</span><span class="o">=</span><span class="mi">13</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">&#39;bold&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;fig_comparacion_criterios_14d.png&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">NameError</span><span class="g g-Whitespace">                                 </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">line</span> <span class="mi">24</span>
+<span class="g g-Whitespace">     </span><span class="mi">22</span>     <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Precio BTC-USD (USD)&#39;</span><span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">23</span>     <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+<span class="ne">---&gt; </span><span class="mi">24</span>     <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">mdates</span><span class="o">.</span><span class="n">DateFormatter</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1">-%b-%Y&#39;</span><span class="p">))</span>
+<span class="g g-Whitespace">     </span><span class="mi">25</span>     <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">27</span> <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.dates</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mdates</span>
+
+<span class="ne">NameError</span>: name &#39;mdates&#39; is not defined
+</pre></div>
+</div>
+<img alt="../_images/8f77f0a996c517f9d3972d0c3f6ab94512784b541550fd69baf776e8b4086273.png" src="../_images/8f77f0a996c517f9d3972d0c3f6ab94512784b541550fd69baf776e8b4086273.png" />
+</div>
+</div>
+<div class="tip admonition">
+<p class="admonition-title">Conclusion — Comparacion Global</p>
+<p><strong>Rolling supera al directo</strong> en todos los criterios y horizontes. La diferencia entre AIC, BIC y HQIC es marginal (&lt; 0.01% en MAPE). El heatmap confirma que el horizonte de 14 dias produce el menor error con el metodo rolling. Para aplicaciones practicas, la combinacion <strong>Rolling + BIC + 14 dias</strong> ofrece el mejor balance entre precision y parsimonia del modelo.</p>
+</div>
+</section>
 </section>
 
     <script type="text/x-thebe-config">
@@ -370,6 +821,23 @@ document.write(`
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tabla-comparativa-global">9.1 Tabla comparativa global</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#heatmap-mape-rolling-vs-directo">9.2 Heatmap MAPE — Rolling vs Directo</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#serie-real-vs-predicha-todos-los-criterios-horizonte-14d">9.3 Serie real vs. predicha — Todos los criterios (Horizonte 14d)</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>

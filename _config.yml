@@ -14,7 +14,7 @@ only_build_toc_files : false
 # Ejecución del notebook
 #######################################################################################
 execute:
-  execute_notebooks  : "off"       # No re-ejecutar al compilar (usar outputs ya guardados)
+  execute_notebooks  : "auto"       # No re-ejecutar al compilar (usar outputs ya guardados)
   timeout            : 300
   allow_errors       : false
 

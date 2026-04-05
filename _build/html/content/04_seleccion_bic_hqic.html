@@ -69,7 +69,7 @@ const thebe_selector_output = ".output, .cell_output"
     <script>DOCUMENTATION_OPTIONS.pagename = 'content/04_seleccion_bic_hqic';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="5. Ver notebook principal bitcoin_arima_analysis.ipynb" href="05_rolling_forecast.html" />
+    <link rel="next" title="5. Análisis de Series de Tiempo: Futuros de Bitcoin (BTC-USD)" href="../bitcoin_arima_analysis.html" />
     <link rel="prev" title="3. Capítulo 3: Selección de Modelos ARIMA — Criterio AIC" href="03_seleccion_aic.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -173,20 +173,14 @@ const thebe_selector_output = ".output, .cell_output"
 <li class="toctree-l1"><a class="reference internal" href="03_seleccion_aic.html">3. Capítulo 3: Selección de Modelos ARIMA — Criterio AIC</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">4. Capítulo 4: Selección ARIMA — Criterios BIC y HQIC</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Predicción</span></p>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Análisis Completo</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="05_rolling_forecast.html">5. Ver notebook principal bitcoin_arima_analysis.ipynb</a></li>
-<li class="toctree-l1"><a class="reference internal" href="06_direct_forecast.html">6. Ver notebook principal bitcoin_arima_analysis.ipynb</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bitcoin_arima_analysis.html">5. Análisis de Series de Tiempo: Futuros de Bitcoin (BTC-USD)</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Evaluación</span></p>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Evaluación y Conclusiones</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="07_diagnostico_residuales.html">7. Ver notebook principal bitcoin_arima_analysis.ipynb</a></li>
-<li class="toctree-l1"><a class="reference internal" href="08_metricas_error.html">8. Capítulo 8: Métricas de Error y Evaluación Predictiva</a></li>
-<li class="toctree-l1"><a class="reference internal" href="09_comparacion_global.html">9. Ver notebook principal bitcoin_arima_analysis.ipynb</a></li>
-</ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Conclusiones</span></p>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="10_conclusiones.html">10. Capítulo 10: Conclusiones Generales</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08_metricas_error.html">6. Capítulo 8: Métricas de Error y Evaluación Predictiva</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_conclusiones.html">7. Capítulo 10: Conclusiones Generales</a></li>
 </ul>
 
     </div>
@@ -380,7 +374,7 @@ $<span class="math notranslate nohighlight">\(\ln(3800) \approx 8.24 \gg 2\)</sp
 <p>Por lo tanto BIC penaliza <strong>~4 veces más</strong> que AIC por parámetro adicional, favoreciendo modelos de menor orden.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -421,6 +415,17 @@ $<span class="math notranslate nohighlight">\(\ln(3800) \approx 8.24 \gg 2\)</sp
           <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">mb</span><span class="o">.</span><span class="n">order</span><span class="p">)</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2">  </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">mh</span><span class="o">.</span><span class="n">order</span><span class="p">)</span><span class="si">:</span><span class="s2">&gt;12</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  Horizonte   AIC (p,d,q)    BIC (p,d,q)   HQIC (p,d,q)
+------------------------------------------------------------
+       7d       (1, 1, 0)     (0, 1, 0)     (1, 1, 0)
+      14d       (1, 1, 0)     (0, 1, 0)     (1, 1, 0)
+      21d       (1, 1, 0)     (0, 1, 0)     (1, 1, 0)
+      28d       (1, 1, 0)     (0, 1, 0)     (1, 1, 0)
+------------------------------------------------------------
 </pre></div>
 </div>
 </div>
@@ -472,11 +477,11 @@ $<span class="math notranslate nohighlight">\(\ln(3800) \approx 8.24 \gg 2\)</sp
       </div>
     </a>
     <a class="right-next"
-       href="05_rolling_forecast.html"
+       href="../bitcoin_arima_analysis.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><span class="section-number">5. </span>Ver notebook principal bitcoin_arima_analysis.ipynb</p>
+        <p class="prev-next-title"><span class="section-number">5. </span>Análisis de Series de Tiempo: Futuros de Bitcoin (BTC-USD)</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
